@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Invitation</title>
+    <title>Humayun's Wedding Invitation</title>
     <!-- Tailwind CSS for layout -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <!-- Montserrat font -->
@@ -18,7 +18,7 @@
             font-family: 'Montserrat', sans-serif;
             background: radial-gradient(circle at center, #2a221b 0%, #0f0c0a 100%);
             overflow: hidden;
-            perspective: 1200px;
+            perspective: 1500px;
         }
 
         /* Hanging lights styling */
@@ -52,82 +52,146 @@
             pointer-events: auto;
         }
 
-        /* ENLARGED: Envelope core container updated to 400x500 */
-        .envelope-wrapper {
+        /* Envelope Base Workspace */
+        .envelope-container {
             position: relative;
             width: 400px;
             height: 500px;
-            background-color: #cca43b; /* Pastel dark mustard/yellow */
-            box-shadow: 0 25px 50px rgba(0,0,0,0.6);
+            transform-style: preserve-3d;
+        }
+
+        /* LAYER 1: Envelope Back Background Solid */
+        .envelope-back {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: #b89230;
             border-radius: 6px;
-            z-index: 30;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.4);
+            z-index: 10;
         }
         
-        /* Adjusted 3D Flap math for 400px width */
+        /* LAYER 2: Real 3D Top Flap folding upwards realistically */
         .envelope-flap {
             position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 0;
-            border-left: 200px solid transparent;
-            border-right: 200px solid transparent;
-            border-top: 200px solid #b89230;
+            top: 0; left: 0;
+            width: 400px;
+            height: 250px;
+            background-color: #a48025;
+            clip-path: polygon(0 0, 50% 100%, 100% 0);
             transform-origin: top center;
-            z-index: 30;
+            z-index: 25; 
+            transform-style: preserve-3d;
+            backface-visibility: hidden;
         }
 
-        .envelope-pockets {
+        /* THE MASK: Restricts visibility safely inside the envelope pocket body */
+        .envelope-inner-sleeve {
             position: absolute;
-            bottom: 0; left: 0; right: 0; height: 100%;
-            z-index: 25;
+            top: -600px; 
+            left: 0; 
+            width: 400px; 
+            height: 1100px; 
+            overflow: hidden; 
+            z-index: 15;
             pointer-events: none;
-        }
-        .left-pocket {
-            position: absolute; bottom:0; left:0; width:0; height:0;
-            border-left: 200px solid #d4ad42; border-top: 250px solid transparent;
-        }
-        .right-pocket {
-            position: absolute; bottom:0; right:0; width:0; height:0;
-            border-right: 200px solid #d4ad42; border-top: 250px solid transparent;
-        }
-        .bottom-pocket {
-            position: absolute; bottom:0; left:0; right:0; width:0; height:0;
-            border-bottom: 260px solid #c29c37; border-left: 200px solid transparent; border-right: 200px solid transparent;
+            clip-path: inset(600px 0px 0px 0px);
         }
 
-        /* RESTORATION: Your full size card configuration fits perfectly inside now */
+        /* LAYER 3: The actual moving card inside the sleeve container */
         .wedding-card {
             position: absolute;
-            top: 20px;
+            top: 625px; 
             left: 30px;
             width: 340px;
             height: 460px; 
             background: #fffdf9;
-            z-index: 15;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
             border-radius: 6px;
             overflow: hidden;
+            pointer-events: auto;
         }
 
-        /* Customizing the styled slider track */
+        /* LAYER 4: FIXED PERFECTLY CLOSED FRONT POCKETS */
+        /* These meet exactly at the center point (200px, 250px) leaving absolutely zero open gaps on the sides */
+        .envelope-pockets {
+            position: absolute;
+            top: 0; bottom: 0; left: 0; right: 0;
+            z-index: 20; 
+            pointer-events: none;
+        }
+        .left-pocket {
+            position: absolute; top:0; bottom:0; left:0; width:200px;
+            background-color: #d4ad42;
+            clip-path: polygon(0 0, 100% 50%, 0 100%);
+        }
+        .right-pocket {
+            position: absolute; top:0; bottom:0; right:0; width:200px;
+            background-color: #d4ad42;
+            clip-path: polygon(100% 0, 0 50%, 100% 100%);
+        }
+        .bottom-pocket {
+            position: absolute; bottom:0; left:0; right:0; height:250px;
+            background-color: #c29c37;
+            clip-path: polygon(0 100%, 50% 0, 100% 100%);
+        }
+
+        /* LAYER 5: Red Wax Seal Stamp centered exactly where all flaps meet */
+        .red-seal {
+            position: absolute;
+            top: 220px;
+            left: 170px;
+            width: 60px;
+            height: 60px;
+            background: radial-gradient(circle at 35% 35%, #ff2e2e, #a80000);
+            border-radius: 50%;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5), inset 0 0 8px rgba(0,0,0,0.4);
+            z-index: 30; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #800000;
+        }
+        .red-seal::after {
+            content: "♥";
+            color: #ffcccc;
+            font-size: 22px;
+            opacity: 0.7;
+        }
+
+        /* Slider customization track */
         input[type="range"] {
             -webkit-appearance: none;
             appearance: none;
             background: #3a3128;
             border: 1px solid #57493a;
             border-radius: 9999px;
-            height: 12px;
+            height: 14px;
             outline: none;
         }
         input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #ffd778, #b08721);
-            border: 2px solid #57493a;
+            width: 36px;
+            height: 36px;
             cursor: pointer;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.6);
+            background: #ffd24d;
+            background-image: 
+                radial-gradient(circle at center, #b07200 25%, transparent 26%),
+                radial-gradient(circle, #ffeb99 40%, transparent 42%);
+            border: 2px solid #b08721;
+            border-radius: 50%;
+            box-shadow: 
+                0 0 0 4px #ffd24d, 
+                0 2px 8px rgba(0,0,0,0.5);
+        }
+
+        /* Floating blessings animation styles */
+        .blessing-particle {
+            position: fixed;
+            bottom: -50px;
+            pointer-events: none;
+            z-index: 110;
+            user-select: none;
         }
     </style>
 </head>
@@ -175,24 +239,31 @@
     <!-- Main Content Layout Section -->
     <div class="flex flex-col md:flex-row items-center justify-center gap-12 z-30 mt-16 max-w-5xl w-full">
         
-        <!-- 3. ANIMATED ENVELOPE CONFIGURATION (Updated size context) -->
-        <div class="relative w-[400px] h-[500px] flex-shrink-0" id="envelope-parent-zone">
-            <div class="envelope-wrapper w-full h-full" id="envelope-box">
-                <!-- THE FLAP -->
-                <div class="envelope-flap" id="env-flap"></div>
+        <!-- 3. LAYERED ARCHITECTURE ENVELOPE MODULE -->
+        <div class="envelope-container flex-shrink-0" id="envelope-parent-zone">
+            <!-- BACKGROUND BASE LAYER -->
+            <div class="envelope-back" id="env-back-box"></div>
 
-                <!-- FRONT LAYER OVERLAYS -->
-                <div class="envelope-pockets">
-                    <div class="left-pocket"></div>
-                    <div class="right-pocket"></div>
-                    <div class="bottom-pocket"></div>
+            <!-- THE MASKED SLEEVE FOR REALISTIC VISIBILITY -->
+            <div class="envelope-inner-sleeve" id="env-sleeve">
+                <!-- THE WEDDING INVITE CARD LAYER -->
+                <div class="wedding-card" id="invitation-card">
+                    <img src="card.png" alt="Haldi Ceremony Invitation" class="w-full h-full object-cover" onerror="this.src='https://i.imgur.com/GscTBeH.png'">
                 </div>
             </div>
 
-            <!-- THE INVITE CARD (card.png) -->
-            <div class="wedding-card" id="invitation-card">
-                <img src="card.png" alt="Haldi Ceremony Invitation" class="w-full h-full object-cover" onerror="this.src='https://i.imgur.com/GscTBeH.png'">
+            <!-- TOP FLAP LAYER (Starts folded over down front face) -->
+            <div class="envelope-flap" id="env-flap"></div>
+
+            <!-- FRONT POCKET OVERLAYS FOREGROUND (PERFECT RECTANGLE SEAL) -->
+            <div class="envelope-pockets" id="env-front-pockets">
+                <div class="left-pocket"></div>
+                <div class="right-pocket"></div>
+                <div class="bottom-pocket"></div>
             </div>
+
+            <!-- RED WAX SEAL EMBLEM LAYER -->
+            <div class="red-seal" id="env-seal"></div>
         </div>
 
         <!-- 4. INTERACTIVE SIDEBAR CONTROL PANEL -->
@@ -218,7 +289,10 @@
         const slider = document.getElementById('reveal-slider');
         const flap = document.getElementById('env-flap');
         const card = document.getElementById('invitation-card');
-        const envelope = document.getElementById('envelope-box');
+        const sleeve = document.getElementById('env-sleeve');
+        const envBack = document.getElementById('env-back-box');
+        const envPockets = document.getElementById('env-front-pockets');
+        const seal = document.getElementById('env-seal');
         const controlPanel = document.getElementById('control-panel');
         const label = document.getElementById('slider-label');
         const lights = document.getElementById('ambient-lights');
@@ -230,29 +304,40 @@
         let isPoppedOut = false;
         let musicStarted = false;
 
-        // 1. Core Timeline: Slider linked action
+        // 1. Core Timeline: Realism logic mapping
         const envelopeTimeline = gsap.timeline({ paused: true });
 
-        // Step A: Fold envelope flap up open
-        envelopeTimeline.to(flap, {
-            borderTopWidth: "0px",
-            borderBottom: "200px solid #a48025", 
-            y: "-200px",
-            duration: 3.5,
-            ease: "power1.inOut"
-        });
+        // Step A: Seal vanishes quickly as movement begins
+        envelopeTimeline.to(seal, {
+            opacity: 0,
+            scale: 0.6,
+            y: "-10px",
+            duration: 1.5,
+            ease: "power2.in"
+        }, 0);
 
-        // Step B: Slide full size card straight up out of the deep pocket
+        // Step B: Real 3D Flap opens vertically upward around the upper top hinge axis
+        envelopeTimeline.to(flap, {
+            transform: "rotateX(180deg)",
+            backgroundColor: "#b89230", 
+            duration: 4.5,
+            ease: "power1.inOut"
+        }, 0);
+
+        // Dynamic z-index swap: Once the flap rotates past 90 degrees, push it behind the card
+        envelopeTimeline.set(flap, { zIndex: 11 }, 2.5);
+
+        // Step C: The card starts sliding upwards completely protected by side mask clip bounds
         envelopeTimeline.to(card, {
-            y: "-430px",
-            duration: 6.5,
-            ease: "power2.out"
-        });
+            y: "-450px",
+            duration: 5.5,
+            ease: "power1.out"
+        }, 4.0); 
 
         // 2. Track range slider input
         slider.addEventListener('input', (e) => {
             if (!musicStarted) {
-                music.play().catch(error => console.log("Audio play gesture bypass ready."));
+                music.play().catch(error => console.log("Audio framework unblocked."));
                 musicStarted = true;
             }
 
@@ -261,19 +346,19 @@
             const progress = e.target.value / 100;
             envelopeTimeline.progress(progress);
 
-            // Trigger Pop-Out at 100%
+            // Trigger Pop-Out at 100% full stretch clearance
             if (e.target.value == 100 && !isPoppedOut) {
                 triggerCardPopOut();
             }
         });
 
-        // 3. Pop-Out Function
+        // 3. Pop-Out Function with Floating Blessings Animation
         function triggerCardPopOut() {
             isPoppedOut = true;
             document.body.classList.add('popup-active');
             label.innerText = "Click Card to Close";
 
-            // Detach card completely to body level for full bright display overlay rendering
+            // Un-nest the card out of the sleeve entirely and put it directly on body to break clip-path bounds
             document.body.appendChild(card);
 
             gsap.set(card, {
@@ -286,22 +371,56 @@
                 opacity: 1
             });
 
-            // Scale beautifully onto the pure black layout background space
+            // Scale gracefully onto screen center stage
             gsap.to(card, {
                 scale: 1.25,
                 boxShadow: "0 30px 60px rgba(0,0,0,0.9)",
                 duration: 0.8,
-                ease: "back.out(1.1)"
+                ease: "back.out(1.1)",
+                onComplete: spawnBlessings // Call the floating blessings effect!
             });
 
-            // Blackout components
-            gsap.to([envelope, controlPanel, lights, flowersLeft, flowersRight], {
+            // Blackout remaining interface assets safely 
+            gsap.to([envBack, flap, envPockets, seal, controlPanel, lights, flowersLeft, flowersRight], {
                 opacity: 0,
                 duration: 0.4
             });
 
             card.style.cursor = "pointer";
             card.addEventListener('click', closePopup);
+        }
+
+        // Floating Blessings Spawner Engine
+        function spawnBlessings() {
+            if (!isPoppedOut) return;
+
+            // Arrays containing beautiful emojis for flowers, hearts, balloons and celebratory symbols
+            const particles = ["🌸", "🌹", "🌷", "🌻", "❤️", "✨", "💝", "💛", "🎈", "🎈"];
+            const screenWidth = window.innerWidth;
+
+            // Spawn 55 randomized floating items rising to the top
+            for (let i = 0; i < 55; i++) {
+                const element = document.createElement("div");
+                element.className = "blessing-particle text-2xl md:text-3xl";
+                element.innerText = particles[Math.floor(Math.random() * particles.length)];
+                
+                // Random starting point horizontal layout position spread across the screen
+                element.style.left = Math.random() * screenWidth + "px";
+                document.body.appendChild(element);
+
+                // Animate individual blessing items climbing vertically up the layout
+                gsap.to(element, {
+                    y: -(window.innerHeight + 100),
+                    x: "+=" + (Math.random() * 120 - 60), // Add a natural swaying motion
+                    rotation: Math.random() * 360,
+                    duration: Math.random() * 3 + 2.5,
+                    ease: "power1.out",
+                    delay: Math.random() * 0.5, // Natural staggered launch timing
+                    onComplete: () => {
+                        element.remove(); // Clean up memory footprint safely
+                    }
+                });
+            }
         }
 
         // 4. Return/Close Function
@@ -316,22 +435,23 @@
             card.style.cursor = "default";
             card.removeEventListener('click', closePopup);
 
-            parentZone.appendChild(card);
+            // Put card safely back inside the overflow hidden slider sleeve container layout layer
+            sleeve.appendChild(card);
 
             gsap.to(card, {
                 position: "absolute",
-                top: "20px",
+                top: "625px", 
                 left: "30px",
                 x: "0%",
-                y: "-430px", 
+                y: "-450px", 
                 scale: 1,
-                boxShadow: "0 4px 20px rgba(0,0,0,0.4)",
+                boxShadow: "0 4px 20px rgba(0,0,0,0.3)",
                 duration: 0.6,
-                zIndex: 15,
                 ease: "power2.inOut"
             });
 
-            gsap.to([envelope, controlPanel, lights, flowersLeft, flowersRight], {
+            // Instantly bring envelope components back safely
+            gsap.to([envBack, flap, envPockets, controlPanel, lights, flowersLeft, flowersRight], {
                 opacity: 1,
                 duration: 0.5
             });
