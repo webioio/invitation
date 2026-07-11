@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invitation</title>
+    <!-- Tailwind CSS for layout -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- Montserrat font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+    <!-- GSAP for robust animation control -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: radial-gradient(circle at center, #2a221b 0%, #0f0c0a 100%);
+            overflow: hidden;
+            perspective: 1200px;
+        }
+
+        /* Hanging lights styling */
+        .light-string {
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 20" preserveAspectRatio="none"><path d="M0,5 Q25,15 50,5 T100,5" fill="none" stroke="%234a3b32" stroke-width="0.5"/></svg>') repeat-x;
+            height: 40px;
+            width: 100%;
+        }
+        .bulb {
+            background: radial-gradient(circle at center, #fff 20%, #ffdf6d 60%, rgba(255,223,109,0) 100%);
+            box-shadow: 0 0 15px #ffcc4d, 0 0 30px #ffaa00;
+            animation: glow 3s ease-in-out infinite alternate;
+        }
+        @keyframes glow {
+            0% { opacity: 0.8; box-shadow: 0 0 12px #ffcc4d; }
+            100% { opacity: 1; box-shadow: 0 0 20px #ffbb00, 0 0 35px #ff8800; }
+        }
+
+        /* Backdrop overlay when full screen pop-out happens */
+        #modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #000000;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 80;
+            transition: opacity 0.5s ease;
+        }
+        body.popup-active #modal-overlay {
+            opacity: 0.95;
+            pointer-events: auto;
+        }
+
+        /* ENLARGED: Envelope core container updated to 400x500 */
+        .envelope-wrapper {
+            position: relative;
+            width: 400px;
+            height: 500px;
+            background-color: #cca43b; /* Pastel dark mustard/yellow */
+            box-shadow: 0 25px 50px rgba(0,0,0,0.6);
+            border-radius: 6px;
+            z-index: 30;
+        }
+        
+        /* Adjusted 3D Flap math for 400px width */
+        .envelope-flap {
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 0;
+            border-left: 200px solid transparent;
+            border-right: 200px solid transparent;
+            border-top: 200px solid #b89230;
+            transform-origin: top center;
+            z-index: 30;
+        }
+
+        .envelope-pockets {
+            position: absolute;
+            bottom: 0; left: 0; right: 0; height: 100%;
+            z-index: 25;
+            pointer-events: none;
+        }
+        .left-pocket {
+            position: absolute; bottom:0; left:0; width:0; height:0;
+            border-left: 200px solid #d4ad42; border-top: 250px solid transparent;
+        }
+        .right-pocket {
+            position: absolute; bottom:0; right:0; width:0; height:0;
+            border-right: 200px solid #d4ad42; border-top: 250px solid transparent;
+        }
+        .bottom-pocket {
+            position: absolute; bottom:0; left:0; right:0; width:0; height:0;
+            border-bottom: 260px solid #c29c37; border-left: 200px solid transparent; border-right: 200px solid transparent;
+        }
+
+        /* RESTORATION: Your full size card configuration fits perfectly inside now */
+        .wedding-card {
+            position: absolute;
+            top: 20px;
+            left: 30px;
+            width: 340px;
+            height: 460px; 
+            background: #fffdf9;
+            z-index: 15;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        /* Customizing the styled slider track */
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            background: #3a3128;
+            border: 1px solid #57493a;
+            border-radius: 9999px;
+            height: 12px;
+            outline: none;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ffd778, #b08721);
+            border: 2px solid #57493a;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.6);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 m-0">
+
+    <!-- BACKGROUND MUSIC COMPONENT -->
+    <audio id="bg-music" src="music.mp3" loop></audio>
+
+    <!-- Dimming layer overlay for Pop-Out stage -->
+    <div id="modal-overlay" onclick="closePopup()"></div>
+
+    <!-- 1. HANGING CEILING LIGHTS -->
+    <div id="ambient-lights" class="absolute top-0 left-0 w-full z-50 pointer-events-none flex flex-col items-center">
+        <div class="light-string"></div>
+        <div class="flex justify-around w-full max-w-5xl -mt-5 px-12">
+            <div class="w-3 h-7 bg-amber-950 rounded-b-xs relative flex justify-center"><div class="bulb w-5 h-5 rounded-full absolute -bottom-4"></div></div>
+            <div class="w-3 h-12 bg-amber-950 rounded-b-xs relative flex justify-center"><div class="bulb w-5 h-5 rounded-full absolute -bottom-4"></div></div>
+            <div class="w-3 h-6 bg-amber-950 rounded-b-xs relative flex justify-center"><div class="bulb w-5 h-5 rounded-full absolute -bottom-4"></div></div>
+            <div class="w-3 h-14 bg-amber-950 rounded-b-xs relative flex justify-center"><div class="bulb w-5 h-5 rounded-full absolute -bottom-4"></div></div>
+            <div class="w-3 h-8 bg-amber-950 rounded-b-xs relative flex justify-center"><div class="bulb w-5 h-5 rounded-full absolute -bottom-4"></div></div>
+        </div>
+    </div>
+
+    <!-- 2. HANGING FLOWERS IN CORNERS -->
+    <div id="ambient-flowers-left" class="absolute top-0 left-0 w-48 h-80 opacity-50 pointer-events-none z-40">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 200" class="w-full h-full">
+            <path d="M0,0 Q30,40 10,90 T20,160" fill="none" stroke="#4a533c" stroke-width="1.5"/>
+            <path d="M0,0 Q50,20 40,70 T15,130" fill="none" stroke="#4a533c" stroke-width="1.2"/>
+            <g fill="#dfc5fe" opacity="0.85">
+                <circle cx="10" cy="90" r="5"/><circle cx="14" cy="95" r="4"/><circle cx="7" cy="100" r="4.5"/>
+                <circle cx="20" cy="150" r="4"/>
+            </g>
+        </svg>
+    </div>
+    <div id="ambient-flowers-right" class="absolute top-0 right-0 w-48 h-80 opacity-50 pointer-events-none z-40 scale-x-[-1]">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 200" class="w-full h-full">
+            <path d="M0,0 Q30,40 10,90 T20,160" fill="none" stroke="#4a533c" stroke-width="1.5"/>
+            <path d="M0,0 Q50,20 40,70 T15,130" fill="none" stroke="#4a533c" stroke-width="1.2"/>
+            <g fill="#dfc5fe" opacity="0.85">
+                <circle cx="10" cy="90" r="5"/><circle cx="14" cy="95" r="4"/>
+            </g>
+        </svg>
+    </div>
+
+    <!-- Main Content Layout Section -->
+    <div class="flex flex-col md:flex-row items-center justify-center gap-12 z-30 mt-16 max-w-5xl w-full">
+        
+        <!-- 3. ANIMATED ENVELOPE CONFIGURATION (Updated size context) -->
+        <div class="relative w-[400px] h-[500px] flex-shrink-0" id="envelope-parent-zone">
+            <div class="envelope-wrapper w-full h-full" id="envelope-box">
+                <!-- THE FLAP -->
+                <div class="envelope-flap" id="env-flap"></div>
+
+                <!-- FRONT LAYER OVERLAYS -->
+                <div class="envelope-pockets">
+                    <div class="left-pocket"></div>
+                    <div class="right-pocket"></div>
+                    <div class="bottom-pocket"></div>
+                </div>
+            </div>
+
+            <!-- THE INVITE CARD (card.png) -->
+            <div class="wedding-card" id="invitation-card">
+                <img src="card.png" alt="Haldi Ceremony Invitation" class="w-full h-full object-cover" onerror="this.src='https://i.imgur.com/GscTBeH.png'">
+            </div>
+        </div>
+
+        <!-- 4. INTERACTIVE SIDEBAR CONTROL PANEL -->
+        <div class="flex flex-col items-center bg-[#1e1713]/95 border border-amber-900/30 px-6 py-8 rounded-xl w-64 shadow-2xl text-center self-center" id="control-panel">
+            <label id="slider-label" for="reveal-slider" class="text-amber-300 text-xs font-semibold tracking-widest uppercase mb-4 block">
+                Slide To Open Envelope
+            </label>
+            
+            <div class="relative w-full flex items-center justify-center">
+                <input type="range" id="reveal-slider" min="0" max="100" value="0" class="w-full cursor-pointer">
+            </div>
+            
+            <div class="flex justify-between w-full text-[10px] text-amber-500/60 uppercase tracking-widest mt-3 px-1 font-medium">
+                <span>Closed</span>
+                <span>Open</span>
+            </div>
+        </div>
+        
+    </div>
+
+    <!-- GSAP SLIDER AND POP-OUT SCRIPT -->
+    <script>
+        const slider = document.getElementById('reveal-slider');
+        const flap = document.getElementById('env-flap');
+        const card = document.getElementById('invitation-card');
+        const envelope = document.getElementById('envelope-box');
+        const controlPanel = document.getElementById('control-panel');
+        const label = document.getElementById('slider-label');
+        const lights = document.getElementById('ambient-lights');
+        const flowersLeft = document.getElementById('ambient-flowers-left');
+        const flowersRight = document.getElementById('ambient-flowers-right');
+        const parentZone = document.getElementById('envelope-parent-zone');
+        const music = document.getElementById('bg-music');
+
+        let isPoppedOut = false;
+        let musicStarted = false;
+
+        // 1. Core Timeline: Slider linked action
+        const envelopeTimeline = gsap.timeline({ paused: true });
+
+        // Step A: Fold envelope flap up open
+        envelopeTimeline.to(flap, {
+            borderTopWidth: "0px",
+            borderBottom: "200px solid #a48025", 
+            y: "-200px",
+            duration: 3.5,
+            ease: "power1.inOut"
+        });
+
+        // Step B: Slide full size card straight up out of the deep pocket
+        envelopeTimeline.to(card, {
+            y: "-430px",
+            duration: 6.5,
+            ease: "power2.out"
+        });
+
+        // 2. Track range slider input
+        slider.addEventListener('input', (e) => {
+            if (!musicStarted) {
+                music.play().catch(error => console.log("Audio play gesture bypass ready."));
+                musicStarted = true;
+            }
+
+            if (isPoppedOut) return; 
+
+            const progress = e.target.value / 100;
+            envelopeTimeline.progress(progress);
+
+            // Trigger Pop-Out at 100%
+            if (e.target.value == 100 && !isPoppedOut) {
+                triggerCardPopOut();
+            }
+        });
+
+        // 3. Pop-Out Function
+        function triggerCardPopOut() {
+            isPoppedOut = true;
+            document.body.classList.add('popup-active');
+            label.innerText = "Click Card to Close";
+
+            // Detach card completely to body level for full bright display overlay rendering
+            document.body.appendChild(card);
+
+            gsap.set(card, {
+                position: "fixed",
+                top: "50%",
+                left: "50%",
+                x: "-50%",
+                y: "-50%",
+                zIndex: 100,
+                opacity: 1
+            });
+
+            // Scale beautifully onto the pure black layout background space
+            gsap.to(card, {
+                scale: 1.25,
+                boxShadow: "0 30px 60px rgba(0,0,0,0.9)",
+                duration: 0.8,
+                ease: "back.out(1.1)"
+            });
+
+            // Blackout components
+            gsap.to([envelope, controlPanel, lights, flowersLeft, flowersRight], {
+                opacity: 0,
+                duration: 0.4
+            });
+
+            card.style.cursor = "pointer";
+            card.addEventListener('click', closePopup);
+        }
+
+        // 4. Return/Close Function
+        function closePopup() {
+            if (!isPoppedOut) return;
+            isPoppedOut = false;
+            document.body.classList.remove('popup-active');
+            label.innerText = "Slide To Open Envelope";
+            slider.value = 90; 
+            envelopeTimeline.progress(0.9);
+
+            card.style.cursor = "default";
+            card.removeEventListener('click', closePopup);
+
+            parentZone.appendChild(card);
+
+            gsap.to(card, {
+                position: "absolute",
+                top: "20px",
+                left: "30px",
+                x: "0%",
+                y: "-430px", 
+                scale: 1,
+                boxShadow: "0 4px 20px rgba(0,0,0,0.4)",
+                duration: 0.6,
+                zIndex: 15,
+                ease: "power2.inOut"
+            });
+
+            gsap.to([envelope, controlPanel, lights, flowersLeft, flowersRight], {
+                opacity: 1,
+                duration: 0.5
+            });
+        }
+    </script>
+</body>
+</html>
